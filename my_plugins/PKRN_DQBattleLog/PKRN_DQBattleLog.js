@@ -42,7 +42,9 @@
  * This plugin moves the battle log window from the top to the bottom of the
  * battle screen, giving it a Dragon Quest-style appearance.
  *
- * The window will be displayed just above the party status window.
+ * The window occupies the same area as the command windows at the bottom.
+ * During action execution, the log is visible. During command input,
+ * the command windows render on top of the log area.
  */
 
 /*:ja
@@ -79,7 +81,9 @@
  * バトルログウィンドウを画面上部から下部に移動し、
  * ドラクエ風の表示にするプラグインです。
  *
- * ウィンドウはパーティのステータスウィンドウのすぐ上に表示されます。
+ * ウィンドウはコマンドウィンドウと同じ画面下部エリアに配置されます。
+ * 行動実行中はログが表示され、コマンド入力中はコマンドウィンドウが
+ * ログの上に重なって表示されます（ドラクエ方式）。
  */
 
 (() => {
@@ -91,14 +95,11 @@
   const windowOpacityParam = Math.min(255, Math.max(0, parseInt(params['WindowOpacity'] ?? 255, 10)));
   const backPaintOpacityParam = Math.min(255, Math.max(0, parseInt(params['BackPaintOpacity'] ?? 160, 10)));
 
-  // ログウィンドウをパーティステータスウィンドウのすぐ上・画面下部に配置する
-  const _Scene_Battle_logWindowRect = Scene_Battle.prototype.logWindowRect;
+  // ログウィンドウをコマンドウィンドウと同じ下部エリアに配置する
+  // 行動実行中はログが全面表示され、コマンド入力中はコマンドウィンドウが上に重なる
   Scene_Battle.prototype.logWindowRect = function() {
-    const ww = Graphics.boxWidth;
-    const wh = this.calcWindowHeight(maxLinesParam, false);
-    const wx = 0;
-    const wy = Graphics.boxHeight - this.windowAreaHeight() - wh;
-    return new Rectangle(wx, wy, ww, wh);
+    const wh = this.windowAreaHeight();
+    return new Rectangle(0, Graphics.boxHeight - wh, Graphics.boxWidth, wh);
   };
 
   /**
